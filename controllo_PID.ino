@@ -1,6 +1,10 @@
 // Author: G.Topan
 // Note: 
 
+#include "Encoder.h"
+#include "ReadSetpoint.h"
+#include "AppCommon.h"
+
 // CONSTANTS:
 
 // pin list
@@ -13,33 +17,38 @@
 #define NUM_LOOP_LED  3
 #define NUM_LOOP_1S   10
 
+#define ADC_TO_PWMSET 4
+
 // GLOB VARIABLES:
 uint32_t tNext_ms = 0;
 uint32_t tCurr_ms = 0;
 
-uint32_t val_trimmer = 0;
-uint32_t pwm_setpoint = 0;
+//uint32_t val_trimmer = 0;
+//uint32_t pwm_setpoint = 0;
 
-volatile uint32_t pulse_count = 0;
+//volatile uint32_t pulse_count = 0;
+//volatile unsigned long lastMicros = 0;
+
 uint32_t num_pulse = 0;
-float speed_rpm = 0;
 
 void setup() 
 {
   Serial.begin(115200);
-  
-  pinMode(LED_BUILTIN, OUTPUT);
-  // Pin dell'encoder
-  pinMode(PIN_ENCODER, INPUT_PULLUP);  
-  attachInterrupt(digitalPinToInterrupt(PIN_ENCODER), isr_pulse_count, RISING);
 
+  // init Hw  
+  Encoder_Init();
+  RdSetpoint_Init(0);
+  // read starting setpoint
+  RdSetpoint_Update();
+
+  // init onboard LED output
+  pinMode(LED_BUILTIN, OUTPUT);
+  // init cycle time variables
   tCurr_ms = millis();
   tNext_ms = tCurr_ms + CYCLE_TIME_MS;
 
-  // read starting setpoint
-  val_trimmer = analogRead(PIN_TRIMMER);
-  pwm_setpoint = val_trimmer/4;
-  analogWrite(PIN_PWM_OUT, pwm_setpoint);
+  // start PWM output
+  analogWrite(PIN_PWM_OUT, RdSetpoint_Get());
 }
 
 void loop() 
@@ -47,9 +56,6 @@ void loop()
   static uint32_t loop_count = 0;
 
   tCurr_ms= millis();
-
-  //analogWrite(PIN_PWM_OUT, pwm_setpoint);
-  //analogWrite(PIN_PWM_OUT, 200);
 
   if (tCurr_ms >= tNext_ms)
   {
@@ -65,7 +71,7 @@ void loop()
 
     if(loop_count % NUM_LOOP_LED == 0)
     {
-      doLedlink();
+      doLedBlink();
     }
   }
 }
@@ -73,34 +79,36 @@ void loop()
 // commento
 void task_100ms()
 {
-  // command motor speed
-  analogWrite(PIN_PWM_OUT, pwm_setpoint);
+  uint32_t rpmVal;
 
-  // get actual motor speed
-  num_pulse = pulse_count;
-  pulse_count = 0;
-  // speed_rpm = ((num_pulse * 60 * 1000)/(1000*12));
-  //speed_rpm = ((num_pulse * 60000)/12000);
-  speed_rpm = ((num_pulse * 60000)/1200);
+  // command motor speed
+  analogWrite(PIN_PWM_OUT, RdSetpoint_Get());
+
+  Encoder_GetCount();
+  rpmVal = Encoder_GetRpm();
 
   // get new rpm setpoint value
-  val_trimmer = analogRead(PIN_TRIMMER);
-  pwm_setpoint = val_trimmer/4;
+  RdSetpoint_Update();
 }
 
 // commento
 void task_1000ms()
 {
+  uint32_t tmpVal = RdSetpoint_Get();
+  float dutyVal = RdSetpoint_GetDuty();
+  uint32_t rpmSpeed = Encoder_GetRpm();
+
   //Serial.print("conteggio: ");
   //Serial.println(num_pulse, DEC);
-
   Serial.print("setpoint: ");
-  Serial.println(pwm_setpoint, DEC);
-  Serial.print("velocità: ");
-  Serial.println(speed_rpm, 1);
+  Serial.print(tmpVal, DEC);
+  Serial.print("  Set Duty: ");
+  Serial.print(dutyVal, 1);
+  Serial.print("  velocità: ");
+  Serial.println(rpmSpeed, 1);
 }
 
-void doLedlink()
+void doLedBlink()
 {
   static bool led_status = HIGH;
 
@@ -112,10 +120,5 @@ void doLedlink()
     led_status = LOW;
   }
   digitalWrite(LED_BUILTIN, led_status);
-
 }
 
-void isr_pulse_count ()
-{
-  pulse_count++;
-}
