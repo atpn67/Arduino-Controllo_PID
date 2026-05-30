@@ -7,6 +7,7 @@
 
 // CONSTANTS:
 #define DEBOUNCE_TIME_US    500       // software debouncing min time, 500 µs debounce
+#define FREQ_MS_TO_RPM      60000     // converts [1/milliseconds] = Hz*1000 to rpm
 
 // LOCAL VARS:
 static bool init_done = false;        // make Encoder_init only one time
@@ -35,18 +36,31 @@ uint32_t Encoder_GetCount ( void )
   uint32_t num_pulse = 0;
   uint32_t timeWindow_ms = (millis() - timeLast_ms);
 
-  // get actual encoder cout
+  // disable interrupts
+  // get actual encoder couunter
+  // and clear old counter
+  cli();
   num_pulse = pulse_count;
-  // clear old counter
   pulse_count = 0;
-  // convert to rpm speed
+  sei();
+
+  // convert counter to rpm speed if called @ 1Hz
   // speed_rpm = ((num_pulse * 60 * 1000)/(1000*12));
+  // convert counter to rpm speed if called @ 10Hz = 100ms
   //speed_rpm = ((num_pulse * 60000)/1200);
+  //speed_rpm = ((num_pulse * FREQ_MS_TO_RPM)/(MOTOR_ENC_PPR*100));
   // more accurate speed value, take in accout true time window
-  speed_rpm = ((num_pulse * 60000)/(12*timeWindow_ms));
+  speed_rpm = ((num_pulse * FREQ_MS_TO_RPM)/(MOTOR_ENC_PPR*timeWindow_ms));
+
+  return num_pulse;
 }
-  
-uint32_t Encoder_GetRpm ( void )
+ 
+float Encoder_GetRpm ( void )
+{
+  return speed_rpm;
+}
+
+float Encoder_GetRpmSlow ( void )
 {
   return speed_rpm;
 }

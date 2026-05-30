@@ -13,7 +13,12 @@ void Encoder_Init ( void );
 */
 uint32_t Encoder_GetCount ( void );
 
-/* get actual rpm speed
- * return: actual speed in rpm
+/* get actual rpm speed on fast shaft
+ * return: actual fast shaft speed in rpm
 */
-uint32_t Encoder_GetRpm ( void );
+float Encoder_GetRpm ( void );
+
+/* get actual rpm speed on slow shaft
+ * return: actual slow shaft speed in rpm
+*/
+float Encoder_GetRpmSlow ( void );

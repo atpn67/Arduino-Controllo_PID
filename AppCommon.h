@@ -18,3 +18,8 @@
 #define CYCLE_TIME_MS 100
 #define NUM_LOOP_LED  3
 #define NUM_LOOP_1S   10
+
+// PWM motor constants
+#define MOTOR_RPM_FAST_MAX  1200
+#define MOTOR_RPM_FAST_MIN  200
+#define MOTOR_ENC_PPR       12      // Encoder pulse per revolution 
