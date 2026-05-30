@@ -39,7 +39,7 @@ void setup()
   // read starting setpoint
   val_trimmer = analogRead(PIN_TRIMMER);
   pwm_setpoint = val_trimmer/4;
-  //analogWrite(PIN_PWM_OUT, pwm_setpoint);
+  analogWrite(PIN_PWM_OUT, pwm_setpoint);
 }
 
 void loop() 
@@ -49,7 +49,7 @@ void loop()
   tCurr_ms= millis();
 
   //analogWrite(PIN_PWM_OUT, pwm_setpoint);
-  analogWrite(PIN_PWM_OUT, 200);
+  //analogWrite(PIN_PWM_OUT, 200);
 
   if (tCurr_ms >= tNext_ms)
   {
@@ -74,7 +74,7 @@ void loop()
 void task_100ms()
 {
   // command motor speed
-  //analogWrite(PIN_PWM_OUT, pwm_setpoint);
+  analogWrite(PIN_PWM_OUT, pwm_setpoint);
 
   // get actual motor speed
   num_pulse = pulse_count;
