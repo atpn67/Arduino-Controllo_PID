@@ -1,5 +1,5 @@
 // Author: G.Topan
-// Note: 
+// Note:
 
 #ifndef CMYLCD16X2_H
 #define CMYLCD16X2_H
@@ -9,8 +9,8 @@
 
 class CMyLCD16x2 : public LiquidCrystal
 {
-private:
-    // LCD size 
+protected:
+    // LCD size
     static const uint8_t LCD_NUM_ROWS = 2;
     static const uint8_t LCD_NUM_COLS = 16;
 
@@ -29,7 +29,9 @@ public:
      *  text [in]
      *  return none
     */
-    bool printAt ( uint8_t col, uint8_t row, const char* text );
+    bool printAt ( uint8_t row, uint8_t col, const char* text );
+
+    void clear ();
 
     /* update display output only of updated characters
      * return none

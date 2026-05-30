@@ -1,5 +1,5 @@
 // Author: G.Topan
-// Note: 
+// Note:
 
 #include "Arduino.h"
 #include "Encoder.h"
@@ -54,7 +54,7 @@ uint32_t Encoder_GetCount ( void )
 
   return num_pulse;
 }
- 
+
 float Encoder_GetRpm ( void )
 {
   return speed_rpm;
@@ -67,12 +67,12 @@ float Encoder_GetRpmSlow ( void )
 
 void isr_pulse_count ()
 {
-    // software debouncing, count microseconds since last interrupt 
-    static volatile unsigned long lastMicros = 0;   
+    // software debouncing, count microseconds since last interrupt
+    static volatile unsigned long lastMicros = 0;
 
     // debouncing
     unsigned long now = micros();
-    if (now - lastMicros > DEBOUNCE_TIME_US) {   
+    if (now - lastMicros > DEBOUNCE_TIME_US) {
         pulse_count++;
         lastMicros = now;
     }

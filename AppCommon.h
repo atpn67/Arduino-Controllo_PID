@@ -1,5 +1,5 @@
 // Author: G.Topan
-// Note: 
+// Note:
 
 // CONSTANTS:
 
@@ -22,4 +22,4 @@
 // PWM motor constants
 #define MOTOR_RPM_FAST_MAX  1200
 #define MOTOR_RPM_FAST_MIN  200
-#define MOTOR_ENC_PPR       12      // Encoder pulse per revolution 
+#define MOTOR_ENC_PPR       12      // Encoder pulse per revolution

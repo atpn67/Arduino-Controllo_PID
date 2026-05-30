@@ -1,5 +1,5 @@
 // Author: G.Topan
-// Note: 
+// Note:
 
 #include  "stdint.h"
 

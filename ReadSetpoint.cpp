@@ -1,5 +1,5 @@
 // Author: G.Topan
-// Note: 
+// Note:
 
 #include "Arduino.h"
 #include "ReadSetpoint.h"

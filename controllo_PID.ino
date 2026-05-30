@@ -1,9 +1,9 @@
 // Author: G.Topan
-// Note: 
+// Note:
 
 #include "Encoder.h"
 #include "ReadSetpoint.h"
-#include "CMyLCD.h"
+#include "CShowData2Lcd.h"
 #include "AppCommon.h"
 
 // CONSTANTS:
@@ -24,20 +24,19 @@
 uint32_t tNext_ms = 0;
 uint32_t tCurr_ms = 0;
 
-//uint32_t val_trimmer = 0;
-//uint32_t pwm_setpoint = 0;
+CShowData2Lcd oLcdShow;
 
-uint32_t num_pulse = 0;
-
-void setup() 
+void setup()
 {
   Serial.begin(115200);
 
-  // init Hw  
+  // init Hw
   Encoder_Init();
   RdSetpoint_Init(0);
   // read starting setpoint
   RdSetpoint_Update();
+  // init LCD class
+  oLcdShow.setup();
 
   // init onboard LED output
   pinMode(LED_BUILTIN, OUTPUT);
@@ -49,7 +48,7 @@ void setup()
   analogWrite(PIN_PWM_OUT, RdSetpoint_Get());
 }
 
-void loop() 
+void loop()
 {
   static uint32_t loop_count = 0;
 
@@ -61,7 +60,7 @@ void loop()
     loop_count++;
 
     task_100ms();
- 
+
     if(loop_count % NUM_LOOP_1S == 0)
     {
       task_1000ms();
@@ -110,10 +109,10 @@ void doLedBlink()
 {
   static bool led_status = HIGH;
 
-  if (led_status == LOW) 
+  if (led_status == LOW)
   {
     led_status = HIGH;
-  } else 
+  } else
   {
     led_status = LOW;
   }

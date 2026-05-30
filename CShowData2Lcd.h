@@ -1,15 +1,13 @@
 // Author: G.Topan
-// Note: 
+// Note:
 
-#ifndef CMYLCD_H
-#define CMYLCD_H
+#ifndef CSHOWDATA2LCD_H
+#define CSHOWDATA2LCD_H
 
 #include "stdint.h"
-//#include "CMyLCD16x2.h"
-#include <LiquidCrystal.h>
+#include "CMyLcd16x2.h"
 
-
-// values to be used with API CMyLCD::selectData()
+// values to be used with API CShowData2Lcd::selectData()
 enum {
     SELDATA_SETP_RPMFCURR = 1,
     SELDATA_SETP_RPMSCURR,
@@ -17,17 +15,11 @@ enum {
     SELDATA_RPMF_PWMDUTY,
 } ESelData;
 
-//class CMyLCD : public CMyLCD16x2
-class CMyLCD : public LiquidCrystal
+class CShowData2Lcd : public CMyLCD16x2
 {
-private:
-    // LCD size 
-    static const uint8_t LCD_NUM_ROWS = 2;
-    static const uint8_t LCD_NUM_COLS = 16;
-
 public:
-    CMyLCD();
-    virtual ~CMyLCD() {};
+    CShowData2Lcd();
+    virtual ~CShowData2Lcd() {};
 
     // initilize LCD display and clear it
     void setup();
@@ -39,12 +31,11 @@ public:
     */
     bool selectData ( unsigned int data );
 
-      // 
     /* update display output with selected data
      * use selectData() to select data to show
      * return none
     */
-    void refresh();
+    bool refresh();
 
     /* set current rpm Set Point to show on display
      * setp_rpm [in]
@@ -72,12 +63,12 @@ public:
 
 private:
     // string buffers for data to show
-    char _strData1[LCD_NUM_COLS+1];
-    char _strData2[LCD_NUM_COLS+1];
-    char _strData3[LCD_NUM_COLS+1];
-    char _strData4[LCD_NUM_COLS+1];
+    char _strData1[CMyLCD16x2::LCD_NUM_COLS+1];
+    char _strData2[CMyLCD16x2::LCD_NUM_COLS+1];
+    char _strData3[CMyLCD16x2::LCD_NUM_COLS+1];
+    char _strData4[CMyLCD16x2::LCD_NUM_COLS+1];
     // store selection of data to show
     unsigned int _selData;
 };
 
-#endif // CMYLCD_H
+#endif // CSHOWDATA2LCD_H

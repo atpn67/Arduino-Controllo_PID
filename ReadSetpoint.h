@@ -1,5 +1,5 @@
 // Author: G.Topan
-// Note: 
+// Note:
 
 #include  "stdint.h"
 
@@ -10,7 +10,7 @@
 void RdSetpoint_Init ( uint32_t initVal );
 
 /* read analog data and converts it to a pwm value
- * to be called periodically at cycle time 
+ * to be called periodically at cycle time
  * return: none
 */
 void RdSetpoint_Update ( void );

@@ -1,5 +1,5 @@
 // Author: G.Topan
-// Note: 
+// Note:
 
 #include "Arduino.h"
 #include "AppCommon.h"
@@ -22,7 +22,7 @@ bool CMyLCD16x2::setup()
   if ( !_initDone ) {
     _initDone = true;
 
-    // set up the LCD's number of columns and rows: 
+    // set up the LCD's number of columns and rows:
     LiquidCrystal::begin(LCD_NUM_COLS, LCD_NUM_ROWS);
     _cols = LCD_NUM_COLS;
     _rows = LCD_NUM_ROWS;
@@ -32,11 +32,23 @@ bool CMyLCD16x2::setup()
     _shadowBuf = new char[bufSize];
 
     memset(_lcdBuf, ' ', bufSize);
-    memset(_shadowBuf, 0xFF, bufSize); // forza refresh completo  
+    memset(_shadowBuf, 0xFF, bufSize); // forza refresh completo
   }
 }
 
-bool CMyLCD16x2::printAt(uint8_t col, uint8_t row, const char* text) 
+void CMyLCD16x2::clear ()
+{
+  if ( !_initDone ) {
+    // setup() not yet called
+    return;
+  }
+
+  int bufSize = _cols * _rows;
+  memset(_lcdBuf, ' ', bufSize);
+  refresh();
+}
+
+bool CMyLCD16x2::printAt(uint8_t row, uint8_t col, const char* text)
 {
   if ( !_initDone ) {
     // setup() not yet called
@@ -62,7 +74,7 @@ bool CMyLCD16x2::refresh ( void )
   }
   {
     int size = _cols * _rows;
-    
+
     for (int i = 0; i < size; i++) {
         if (_lcdBuf[i] != _shadowBuf[i]) {
             uint8_t row = i / _cols;
