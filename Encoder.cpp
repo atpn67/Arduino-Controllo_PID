@@ -2,7 +2,6 @@
 // Note: 
 
 #include "Arduino.h"
-
 #include "Encoder.h"
 #include "AppCommon.h"
 

@@ -3,6 +3,7 @@
 
 #include "Encoder.h"
 #include "ReadSetpoint.h"
+#include "CMyLCD.h"
 #include "AppCommon.h"
 
 // CONSTANTS:

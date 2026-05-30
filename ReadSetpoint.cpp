@@ -2,7 +2,6 @@
 // Note: 
 
 #include "Arduino.h"
-
 #include "ReadSetpoint.h"
 #include "AppCommon.h"
 
