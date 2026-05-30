@@ -5,7 +5,9 @@
 #define CMYLCD_H
 
 #include "stdint.h"
+//#include "CMyLCD16x2.h"
 #include <LiquidCrystal.h>
+
 
 // values to be used with API CMyLCD::selectData()
 enum {
@@ -15,6 +17,7 @@ enum {
     SELDATA_RPMF_PWMDUTY,
 } ESelData;
 
+//class CMyLCD : public CMyLCD16x2
 class CMyLCD : public LiquidCrystal
 {
 private:
@@ -24,7 +27,7 @@ private:
 
 public:
     CMyLCD();
-    virtual ~ CMyLCD() {};
+    virtual ~CMyLCD() {};
 
     // initilize LCD display and clear it
     void setup();
@@ -41,7 +44,7 @@ public:
      * use selectData() to select data to show
      * return none
     */
-    void update();
+    void refresh();
 
     /* set current rpm Set Point to show on display
      * setp_rpm [in]

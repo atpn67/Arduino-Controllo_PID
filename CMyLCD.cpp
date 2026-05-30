@@ -12,10 +12,15 @@
 
 // template of LCD display output
 //                       1234567890123456
-#define   ROW_STR_01    "Rpm setp:  0000 "
-#define   ROW_STR_02    "Rpm curF: 000.0 "
-#define   ROW_STR_03    "Rpm curS:  00.0 "
-#define   ROW_STR_04    "Duty cur: 000.0%"
+#define   STR_DATA01    "Rpm setPt:  0000"
+#define   STR_DATA02    "Rpm curF:  000.0"
+#define   STR_DATA03    "Rpm curS:   00.0"
+#define   STR_DATA04    "Duty cur%: 000.0"
+
+#define   POS_VAL_DATA01  12 
+#define   POS_VAL_DATA02  11 
+#define   POS_VAL_DATA03  12 
+#define   POS_VAL_DATA04  11 
 
 // GLOBAL API:
 
@@ -28,6 +33,8 @@ CMyLCD::CMyLCD() : LiquidCrystal(PIN_LCD_RS, PIN_LCD_ENAB, PIN_LCD_D4, PIN_LCD_D
   memset( _strData2, val, LCD_NUM_COLS );
   _strData2[LCD_NUM_COLS] = '\0';
   memset( _strData3, val, LCD_NUM_COLS );
+  _strData3[LCD_NUM_COLS] = '\0';
+  memset( _strData4, val, LCD_NUM_COLS );
   _strData3[LCD_NUM_COLS] = '\0';
   //this->begin(LCD_NUM_ROWS, LCD_NUM_COLS);  
 }
@@ -42,18 +49,18 @@ void CMyLCD::setup()
   setCursor(0,0);
 
   // init data strings
-  const char * pStr = ROW_STR_01;
+  const char * pStr = STR_DATA01;
   strncpy( _strData1, pStr, LCD_NUM_COLS );
-  pStr = ROW_STR_02;
+  pStr = STR_DATA02;
   strncpy( _strData2, pStr, LCD_NUM_COLS );
-  pStr = ROW_STR_03;
+  pStr = STR_DATA03;
   strncpy( _strData3, pStr, LCD_NUM_COLS );
-  pStr = ROW_STR_04;
+  pStr = STR_DATA04;
   strncpy( _strData4, pStr, LCD_NUM_COLS );
   // select data to show
   selectData( SELDATA_SETP_RPMFCURR );
   // update display output
-  update();
+  refresh();
 }
 
 bool CMyLCD::selectData ( unsigned int data )
@@ -65,7 +72,7 @@ bool CMyLCD::selectData ( unsigned int data )
   return true;
 }
 
-void CMyLCD::update ( void )
+void CMyLCD::refresh ( void )
 {
   // to be completed!
   switch ( _selData ) {
@@ -87,34 +94,57 @@ void CMyLCD::update ( void )
 
 void CMyLCD::setRpmSetpoint ( uint32_t setp_rpm )
 {
-  _strData1[11] = (char)((setp_rpm/1000)%10+'0');
-  _strData1[12] = (char)((setp_rpm/100)%10+'0');
-  _strData1[13] = (char)((setp_rpm/10)%10+'0');
-  _strData1[14] = (char)((setp_rpm%10)+'0');
+  int pos;
+
+  pos = POS_VAL_DATA01;
+  _strData1[pos] = (char)((setp_rpm/1000)%10+'0');
+  pos++;
+  _strData1[pos] = (char)((setp_rpm/100)%10+'0');
+  pos++;
+  _strData1[pos] = (char)((setp_rpm/10)%10+'0');
+  pos++;
+  pos++;
+  _strData1[pos] = (char)((setp_rpm%10)+'0');
 }
 
 void CMyLCD::setCurrSpeedFast( float speed_rpm )
 {
+  int pos;
   unsigned int tmpVal = speed_rpm; 
-  _strData1[10] = (char)((tmpVal/1000)%10+'0');
-  _strData1[11] = (char)((tmpVal/100)%10+'0');
-  _strData1[12] = (char)((tmpVal/10)%10+'0');
+
+  pos = POS_VAL_DATA02;
+  _strData2[pos] = (char)((tmpVal/1000)%10+'0');
+  pos++;
+  _strData2[pos] = (char)((tmpVal/100)%10+'0');
+  pos++;
+  _strData2[pos] = (char)((tmpVal/10)%10+'0');
   tmpVal = (speed_rpm - tmpVal) * 10.0;
-  _strData1[14] = (char)((tmpVal)%10+'0');
+  pos++;
+  pos++;
+  _strData2[pos] = (char)((tmpVal)%10+'0');
 }
 
 void CMyLCD::setCurrSpeedSlow( float speed_rpm )
 {
-  unsigned int tmpVal = speed_rpm; 
-  //_strData1[10] = (char)((tmpVal/1000)%10+'0');
-  _strData1[11] = (char)((tmpVal/100)%10+'0');
-  _strData1[12] = (char)((tmpVal/10)%10+'0');
+  int pos;
+  unsigned int tmpVal = speed_rpm;
+
+  pos = POS_VAL_DATA03;
+  //_strData1[pos] = (char)((tmpVal/1000)%10+'0');
+  //pos++;
+  _strData3[pos] = (char)((tmpVal/100)%10+'0');
+  pos++;
+  _strData3[pos] = (char)((tmpVal/10)%10+'0');
+  pos++;
   tmpVal = (speed_rpm - tmpVal) * 10.0;
-  _strData1[14] = (char)((tmpVal)%10+'0');
+  pos++;
+  pos++;
+  _strData3[pos] = (char)((tmpVal)%10+'0');
 }
 
 void CMyLCD::setCurrPwmDuty ( float duty_perc )
 {
+  int pos;
   unsigned int tmpVal;
 
   // check input value must be 0 .. 100
@@ -126,11 +156,16 @@ void CMyLCD::setCurrPwmDuty ( float duty_perc )
   }
 
   tmpVal = duty_perc;
-  _strData1[10] = (char)((tmpVal/1000)%10+'0');
-  _strData1[11] = (char)((tmpVal/100)%10+'0');
-  _strData1[12] = (char)((tmpVal/10)%10+'0');
+  pos = POS_VAL_DATA04;
+  _strData4[pos] = (char)((tmpVal/1000)%10+'0');
+  pos++;
+  _strData4[pos] = (char)((tmpVal/100)%10+'0');
+  pos++;
+  _strData4[pos] = (char)((tmpVal/10)%10+'0');
   tmpVal = (duty_perc - tmpVal) * 10.0;
-  _strData1[14] = (char)((tmpVal)%10+'0');
+  pos++;
+  pos++;
+  _strData4[pos] = (char)((tmpVal)%10+'0');
 }
 
 // TODO: delete this?
