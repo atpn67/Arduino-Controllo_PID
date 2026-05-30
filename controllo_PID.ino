@@ -19,15 +19,12 @@
 
 #define ADC_TO_PWMSET 4
 
-// GLOB VARIABLES:
+// GLOBAL VARS:
 uint32_t tNext_ms = 0;
 uint32_t tCurr_ms = 0;
 
 //uint32_t val_trimmer = 0;
 //uint32_t pwm_setpoint = 0;
-
-//volatile uint32_t pulse_count = 0;
-//volatile unsigned long lastMicros = 0;
 
 uint32_t num_pulse = 0;
 
@@ -121,4 +118,3 @@ void doLedBlink()
   }
   digitalWrite(LED_BUILTIN, led_status);
 }
-
