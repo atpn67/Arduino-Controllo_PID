@@ -2,7 +2,7 @@
 // Note:
 
 #include "Encoder.h"
-#include "ReadSetpoint.h"
+#include "ReadInputs.h"
 #include "CShowData2Lcd.h"
 #include "AppCommon.h"
 
@@ -20,9 +20,9 @@ void setup()
 
   // init Hw
   Encoder_Init();
-  RdSetpoint_Init(0);
+  RdInputs_Init(0);
   // read starting setpoint
-  RdSetpoint_Update();
+  RdInputs_Update();
   // init LCD class
   oLcdShow.setup();
 
@@ -33,7 +33,7 @@ void setup()
   tNext_ms = tCurr_ms + CYCLE_TIME_MS;
 
   // start PWM output
-  analogWrite(PIN_PWM_OUT, RdSetpoint_Get());
+  analogWrite(PIN_PWM_OUT, RdInputs_SetPoint());
 }
 
 void loop()
@@ -74,20 +74,20 @@ void task_100ms()
   uint32_t rpmVal;
 
   // command motor speed
-  analogWrite(PIN_PWM_OUT, RdSetpoint_Get());
+  analogWrite(PIN_PWM_OUT, RdInputs_SetPoint());
 
   Encoder_GetCount();
   rpmVal = Encoder_GetRpm();
 
   // get new rpm setpoint value
-  RdSetpoint_Update();
+  RdInputs_Update();
 }
 
 // commento
 void task_1000ms()
 {
-  uint32_t tmpVal = RdSetpoint_Get();
-  float dutyVal = RdSetpoint_GetDuty();
+  uint32_t tmpVal = RdInputs_SetPoint();
+  float dutyVal = RdInputs_GetDuty();
   uint32_t rpmSpeed = Encoder_GetRpm();
 
   //Serial.print("conteggio: ");
