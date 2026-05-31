@@ -6,11 +6,15 @@
 #include "AppCommon.h"
 
 // CONSTANTS:
-#define DEBOUNCE_TIME_US    500       // software debouncing min time, 500 µs debounce
-#define FREQ_MS_TO_RPM      60000     // converts [1/milliseconds] = Hz*1000 to rpm
+// PWM motor constants
+#define MOTOR_ENC_PPR       12      // Encoder pulse per revolution
+#define MOTOR_GEAR_RATIO    48      // motor fast shaft to slow shaft reduction 
+// local control constants
+#define DEBOUNCE_TIME_US    500     // software debouncing min time, 500 µs debounce
+#define FREQ_MS_TO_RPM      60000   // converts [1/milliseconds] = Hz*1000 to rpm
 
 // LOCAL VARS:
-static bool init_done = false;        // make Encoder_init only one time
+static bool initDone = false;        // make Encoder_init only one time
 static uint32_t timeLast_ms = 0;      // time of last Encoder_GetCount() call
 static float speed_rpm = 0;           // [rpm] last computed speed
 static volatile uint32_t pulse_count = 0;   // shared puls counter
@@ -21,8 +25,8 @@ void isr_pulse_count ();
 // GLOBAL FUNCS:
 void Encoder_Init ( void )
 {
-  if ( !init_done ) {
-    init_done = true;
+  if ( !initDone ) {
+    initDone = true;
     // Input PIN of encoder signal
     pinMode(PIN_ENCODER, INPUT_PULLUP);
     // save actual time
@@ -62,7 +66,7 @@ float Encoder_GetRpm ( void )
 
 float Encoder_GetRpmSlow ( void )
 {
-  return speed_rpm;
+  return (speed_rpm / MOTOR_GEAR_RATIO);
 }
 
 void isr_pulse_count ()

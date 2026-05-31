@@ -15,11 +15,8 @@
 #define PIN_LCD_D7    13
 
 // timeout and cycle count
-#define CYCLE_TIME_MS 100
-#define NUM_LOOP_LED  3
-#define NUM_LOOP_1S   10
-
-// PWM motor constants
-#define MOTOR_RPM_FAST_MAX  1200
-#define MOTOR_RPM_FAST_MIN  200
-#define MOTOR_ENC_PPR       12      // Encoder pulse per revolution
+#define TIME_SECOND_MS  1000  // milliseconds in a second
+#define CYCLE_TIME_MS   100   // main control loop time
+#define LED_BLINK_MS    330   // nboard LED Blinking time (semiperiod)
+#define NUM_LOOP_LED    (TIME_SECOND_MS/LED_BLINK_MS)
+#define NUM_LOOP_1S     (TIME_SECOND_MS/CYCLE_TIME_MS)

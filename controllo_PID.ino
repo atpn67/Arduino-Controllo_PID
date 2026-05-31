@@ -8,18 +8,6 @@
 
 // CONSTANTS:
 
-// pin list
-#define PIN_ENCODER   2
-#define PIN_PWM_OUT   9
-#define PIN_TRIMMER   0
-
-// timeout and cycle count
-#define CYCLE_TIME_MS 100
-#define NUM_LOOP_LED  3
-#define NUM_LOOP_1S   10
-
-#define ADC_TO_PWMSET 4
-
 // GLOBAL VARS:
 uint32_t tNext_ms = 0;
 uint32_t tCurr_ms = 0;
@@ -56,19 +44,26 @@ void loop()
 
   if (tCurr_ms >= tNext_ms)
   {
-    tNext_ms += CYCLE_TIME_MS;
+    // cycle @ CYCLE_TIME_MS
     loop_count++;
 
     task_100ms();
 
     if(loop_count % NUM_LOOP_1S == 0)
     {
+      // cycle @ 1000 ms
       task_1000ms();
     }
 
+    // do LED blinking
     if(loop_count % NUM_LOOP_LED == 0)
     {
       doLedBlink();
+    }
+    // set next cycle time
+    while ( tCurr_ms >= tNext_ms ) {
+      tNext_ms += CYCLE_TIME_MS;
+      tCurr_ms = millis();
     }
   }
 }

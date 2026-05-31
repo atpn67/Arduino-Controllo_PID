@@ -3,6 +3,12 @@
 
 #include  "stdint.h"
 
+// CONSTANTS
+
+// PWM motor limits
+#define MOTOR_RPM_FAST_MAX  1200
+#define MOTOR_RPM_FAST_MIN  200
+
 /* initilize encoder speed read
  * return: none
 */
