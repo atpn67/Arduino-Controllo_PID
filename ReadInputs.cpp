@@ -2,6 +2,7 @@
 // Note:
 
 #include "Arduino.h"
+#include "Encoder.h"
 #include "ReadInputs.h"
 #include "AppCommon.h"
 
@@ -11,9 +12,14 @@
 #define ADC_TO_PWMSET   4
 
 // LOCAL VARS:
-static bool initDone = false;         // make Encoder_init only one time
-static uint32_t val_trimmer;
-static uint32_t pwm_setpoint;
+static bool initDone = false;         // make init() only one time
+static uint32_t trimmerADValue;       // current A/D convertsion of the trimmer 0..1023
+static uint32_t pwmSetPoint;
+static uint32_t rpmSetPoint;
+// push button variables
+static int btn01Value = 1;
+static int btn01Value_sv = 1;
+static int btn01Count = 0;
 
 bool RdInputs_Init ( uint32_t initVal )
 {
@@ -31,29 +37,59 @@ bool RdInputs_Init ( uint32_t initVal )
   if ( initVal > MAX_PWMSET ) {
     initVal = MAX_PWMSET;
   }
-  pwm_setpoint = initVal;
-  val_trimmer = initVal * ADC_TO_PWMSET;
+  pwmSetPoint = initVal;
+  trimmerADValue = initVal * ADC_TO_PWMSET;
   return true;
 }
 
 bool RdInputs_Update ( void )
 {
-  // read starting setpoint
-  val_trimmer = analogRead(PIN_TRIMMER);
-  pwm_setpoint = val_trimmer/ADC_TO_PWMSET;
+  // read Trimmer A/D imput
+  trimmerADValue = analogRead(PIN_TRIMMER);
+  pwmSetPoint = trimmerADValue/ADC_TO_PWMSET;
+  // convert to a proportionale value
+  rpmSetPoint = map( trimmerADValue, 0, MAX_ADC_VALUE, MOTOR_RPM_FAST_MIN, MOTOR_RPM_FAST_MAX );
+
+  // update Push Button status and counter
+  btn01Value = digitalRead(PIN_BUTTON01);
+  if ( btn01Value == 0 ) {
+    btn01Value_sv = btn01Value;
+  } else if ( btn01Value_sv == 0 ) {
+    btn01Value_sv = 1;
+    btn01Count++;
+  }
   return true;
 }
 
 uint32_t RdInputs_SetPoint ( void )
 {
-  return pwm_setpoint;
+  return pwmSetPoint;
+}
+
+uint32_t RdInputs_SpeedSetPoint ( void )
+{
+  return rpmSetPoint;
 }
 
 float RdInputs_GetDuty ( void )
 {
   float retVal;
-  retVal = (pwm_setpoint * 100.0) / MAX_PWMSET;
+  retVal = (pwmSetPoint * 100.0) / MAX_PWMSET;
   return retVal;
 }
 
+int RdInputs_GetBtnStatus ()
+{
+  return btn01Value;
+}
+
+int RdInputs_GetBtnPushCount ()
+{
+  return btn01Count;
+}
+
+void RdInputs_CltBtnPushCount ()
+{
+  btn01Count = 0;
+}
 

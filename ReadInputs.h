@@ -13,14 +13,38 @@ bool RdInputs_Init ( uint32_t initVal );
  * to be called periodically at cycle time
  * return: none
 */
-bool RdInputs_Update ( void );
+bool RdInputs_Update ();
 
 /* get actual requested setpoint
  * return: actual setpoint in range 0..255
 */
-uint32_t RdInputs_SetPoint ( void );
+uint32_t RdInputs_SetPoint ();
+
+/* get actual requested setpoint
+ * return: actual rpm setpoint in range 0..1200
+*/
+uint32_t RdInputs_SpeedSetPoint ();
 
 /* get actual requested duty cycle
  * return: actual setpoint duty cycle
 */
-float RdInputs_GetDuty ( void );
+float RdInputs_GetDuty ();
+
+/* get push Button status
+ * to be called periodically as fast as possible
+ * return: push button status
+*/
+int RdInputs_GetBtnStatus ();
+
+/* returns a counter of the number of time the push Button 
+ * has been pressed and released
+ * return: push button press counter
+*/
+int RdInputs_GetBtnPushCount ();
+
+/* clear the counter of the number of time the push Button 
+ * has been pressed and released
+ * return: none
+*/
+void RdInputs_CltBtnPushCount ();
+

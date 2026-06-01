@@ -22,6 +22,8 @@
 // timeout and cycle count
 #define TIME_SECOND_MS  1000  // milliseconds in a second
 #define CYCLE_TIME_MS   100   // main control loop time
-#define LED_BLINK_MS    330   // nboard LED Blinking time (semiperiod)
-#define NUM_LOOP_LED    (TIME_SECOND_MS/LED_BLINK_MS)
 #define NUM_LOOP_1S     (TIME_SECOND_MS/CYCLE_TIME_MS)
+#define LED_BLINK_MS    300   // onboard LED Blinking time (semiperiod)
+#define NUM_LOOP_LED    (LED_BLINK_MS/CYCLE_TIME_MS)
+#define LCD_REFRESH_MS  300   // LCD update time
+#define NUM_LOOP_LCD    (LCD_REFRESH_MS/CYCLE_TIME_MS)

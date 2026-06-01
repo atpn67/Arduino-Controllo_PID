@@ -7,6 +7,7 @@
 #include "AppCommon.h"
 
 // CONSTANTS:
+#define FSM_MAX_STEPS   4
 
 // GLOBAL VARS:
 uint32_t tNext_ms = 0;
@@ -21,7 +22,7 @@ void setup()
   // init Hw
   Encoder_Init();
   RdInputs_Init(0);
-  // read starting setpoint
+  // read inputs value
   RdInputs_Update();
   // init LCD class
   oLcdShow.setup();
@@ -34,6 +35,7 @@ void setup()
 
   // start PWM output
   analogWrite(PIN_PWM_OUT, RdInputs_SetPoint());
+  Serial.println("PWM Motor started.");
 }
 
 void loop()
@@ -49,17 +51,29 @@ void loop()
 
     task_100ms();
 
-    if(loop_count % NUM_LOOP_1S == 0)
+    // refresh LCD content
+    if (loop_count % NUM_LOOP_LCD == 0)
+    {
+      oLcdShow.setRpmSetpoint( RdInputs_SpeedSetPoint() );
+      oLcdShow.setCurrSpeedFast( Encoder_GetRpm() );
+      oLcdShow.setCurrSpeedSlow( Encoder_GetRpmSlow() );
+      oLcdShow.setCurrPwmDuty( RdInputs_GetDuty() );
+
+      oLcdShow.refresh();
+    }
+
+    if (loop_count % NUM_LOOP_1S == 0)
     {
       // cycle @ 1000 ms
       task_1000ms();
     }
 
     // do LED blinking
-    if(loop_count % NUM_LOOP_LED == 0)
+    if (loop_count % NUM_LOOP_LED == 0)
     {
       doLedBlink();
     }
+
     // set next cycle time
     while ( tCurr_ms >= tNext_ms ) {
       tNext_ms += CYCLE_TIME_MS;
@@ -76,28 +90,68 @@ void task_100ms()
   // command motor speed
   analogWrite(PIN_PWM_OUT, RdInputs_SetPoint());
 
+  // update encoder counter
   Encoder_GetCount();
   rpmVal = Encoder_GetRpm();
 
-  // get new rpm setpoint value
+  // get new setpoint value and push button status
   RdInputs_Update();
 }
 
 // commento
 void task_1000ms()
 {
+  int stepNum;
+  stepNum = LCDUpdateSelData();
+
+  // TODO: completare
+#if 0
   uint32_t tmpVal = RdInputs_SetPoint();
   float dutyVal = RdInputs_GetDuty();
-  uint32_t rpmSpeed = Encoder_GetRpm();
+  float rpmSpeed = Encoder_GetRpm();
 
-  //Serial.print("conteggio: ");
-  //Serial.println(num_pulse, DEC);
   Serial.print("setpoint: ");
   Serial.print(tmpVal, DEC);
   Serial.print("  Set Duty: ");
   Serial.print(dutyVal, 1);
   Serial.print("  velocità: ");
   Serial.println(rpmSpeed, 1);
+#endif
+
+  stepNum++;
+  Serial.print("FSM step ");
+  Serial.print(RdInputs_GetBtnStatus(), DEC);
+  Serial.print("  ");
+  Serial.println(stepNum, DEC);
+}
+
+/* update LCD selected data
+ * return: current step 0 .. 4
+*/ 
+int LCDUpdateSelData()
+{
+  int fsmStep = (RdInputs_GetBtnPushCount() % FSM_MAX_STEPS);
+
+  switch ( fsmStep ) {
+    default:
+    case 0:
+      oLcdShow.selectData(SELDATA_SETP_RPMFCURR);
+      break;
+
+    case 1:
+      oLcdShow.selectData(SELDATA_SETP_RPMSCURR);
+      break;
+
+    case 2:
+      oLcdShow.selectData(SELDATA_SETP_PWMDUTY);
+      break;
+
+    case 3:
+      oLcdShow.selectData(SELDATA_RPMF_PWMDUTY);
+      break;
+  }
+
+  return fsmStep;
 }
 
 void doLedBlink()
