@@ -62,6 +62,8 @@ public:
     void setCurrPwmDuty ( float duty_perc );
 
 private:
+	// true when setup has been done
+    bool _initDone;
     // string buffers for data to show
     char _strData1[CMyLCD16x2::LCD_NUM_COLS+1];
     char _strData2[CMyLCD16x2::LCD_NUM_COLS+1];

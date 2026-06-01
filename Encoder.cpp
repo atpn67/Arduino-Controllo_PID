@@ -37,16 +37,19 @@ void Encoder_Init ( void )
 
 uint32_t Encoder_GetCount ( void )
 {
-  uint32_t num_pulse = 0;
-  uint32_t timeWindow_ms = (millis() - timeLast_ms);
+  uint32_t num_pulse;
+  uint32_t timeNow_ms, timeWindow_ms;
 
   // disable interrupts
-  // get actual encoder couunter
+  // get actual encoder counter
   // and clear old counter
   cli();
   num_pulse = pulse_count;
   pulse_count = 0;
   sei();
+  timeNow_ms = millis();
+  timeWindow_ms = (timeNow_ms - timeLast_ms);
+  timeLast_ms = timeNow_ms;
 
   // convert counter to rpm speed if called @ 1Hz
   // speed_rpm = ((num_pulse * 60 * 1000)/(1000*12));

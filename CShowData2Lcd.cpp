@@ -11,14 +11,14 @@
 #define   LCD_DLY_US    50    // the value of delay time
 
 // template of LCD display output
-//                       1234567890123456
+//                       0123456789012345
 #define   STR_DATA01    "Rpm setPt:  0000"
-#define   STR_DATA02    "Rpm curF:  000.0"
+#define   STR_DATA02    "Rpm curF: 0000.0"
 #define   STR_DATA03    "Rpm curS:   00.0"
 #define   STR_DATA04    "Duty cur%: 000.0"
 
 #define   POS_VAL_DATA01  12
-#define   POS_VAL_DATA02  11
+#define   POS_VAL_DATA02  10
 #define   POS_VAL_DATA03  12
 #define   POS_VAL_DATA04  11
 
@@ -43,20 +43,24 @@ void CShowData2Lcd::setup()
 {
   CMyLCD16x2::setup();
 
+  if ( !_initDone ) {
+    _initDone = true;
+    // init data strings
+    const char * pStr = STR_DATA01;
+    strncpy( _strData1, pStr, LCD_NUM_COLS );
+    pStr = STR_DATA02;
+    strncpy( _strData2, pStr, LCD_NUM_COLS );
+    pStr = STR_DATA03;
+    strncpy( _strData3, pStr, LCD_NUM_COLS );
+    pStr = STR_DATA04;
+    strncpy( _strData4, pStr, LCD_NUM_COLS );
+  }
+
   // clears the LCD screen and positions the cursor in the upper-left corner
-  clear();
+  CMyLCD16x2::clear();
   // set the cursor to column 15, line 0
   setCursor(0,0);
-
-  // init data strings
-  const char * pStr = STR_DATA01;
-  strncpy( _strData1, pStr, LCD_NUM_COLS );
-  pStr = STR_DATA02;
-  strncpy( _strData2, pStr, LCD_NUM_COLS );
-  pStr = STR_DATA03;
-  strncpy( _strData3, pStr, LCD_NUM_COLS );
-  pStr = STR_DATA04;
-  strncpy( _strData4, pStr, LCD_NUM_COLS );
+    
   // select data to show
   selectData( SELDATA_SETP_RPMFCURR );
   // update display output
@@ -102,10 +106,16 @@ bool CShowData2Lcd::refresh ( void )
 
 void CShowData2Lcd::setRpmSetpoint ( uint32_t setp_rpm )
 {
-  int pos;
+  unsigned int pos;
+  uint8_t digit;
 
   pos = POS_VAL_DATA01;
-  _strData1[pos] = (char)((setp_rpm/1000)%10+'0');
+  digit = (uint8_t)((setp_rpm/1000)%10);
+  if ( digit == 0 ) {
+    _strData1[pos] = ' ';
+  } else {
+    _strData1[pos] = digit + '0';
+  }
   pos++;
   _strData1[pos] = (char)((setp_rpm/100)%10+'0');
   pos++;
@@ -117,37 +127,42 @@ void CShowData2Lcd::setRpmSetpoint ( uint32_t setp_rpm )
 
 void CShowData2Lcd::setCurrSpeedFast( float speed_rpm )
 {
-  int pos;
+  unsigned int pos;
   unsigned int tmpVal = speed_rpm;
+  uint8_t digit;
 
   pos = POS_VAL_DATA02;
-  _strData2[pos] = (char)((tmpVal/1000)%10+'0');
+  digit = (uint8_t)((tmpVal/1000)%10);
+  if ( digit == 0 ) {
+    _strData2[pos] = ' ';
+  } else {
+    _strData2[pos] = digit + '0';
+  }
   pos++;
   _strData2[pos] = (char)((tmpVal/100)%10+'0');
   pos++;
   _strData2[pos] = (char)((tmpVal/10)%10+'0');
+  pos++;
+  _strData2[pos] = (char)(tmpVal%10+'0');
   tmpVal = (speed_rpm - tmpVal) * 10.0;
   pos++;
   pos++;
-  _strData2[pos] = (char)((tmpVal)%10+'0');
+  _strData2[pos] = (char)(tmpVal%10+'0');
 }
 
 void CShowData2Lcd::setCurrSpeedSlow( float speed_rpm )
 {
   int pos;
-  unsigned int tmpVal = speed_rpm;
+  unsigned int tmpVal = (unsigned int)speed_rpm;
 
   pos = POS_VAL_DATA03;
-  //_strData1[pos] = (char)((tmpVal/1000)%10+'0');
-  //pos++;
-  _strData3[pos] = (char)((tmpVal/100)%10+'0');
-  pos++;
   _strData3[pos] = (char)((tmpVal/10)%10+'0');
   pos++;
-  tmpVal = (speed_rpm - tmpVal) * 10.0;
+  _strData3[pos] = (char)(tmpVal%10+'0');
+  tmpVal = (speed_rpm - tmpVal) * 10.0f;
   pos++;
   pos++;
-  _strData3[pos] = (char)((tmpVal)%10+'0');
+  _strData3[pos] = (char)(tmpVal%10+'0');
 }
 
 void CShowData2Lcd::setCurrPwmDuty ( float duty_perc )
@@ -163,14 +178,14 @@ void CShowData2Lcd::setCurrPwmDuty ( float duty_perc )
     duty_perc = 0;
   }
 
-  tmpVal = duty_perc;
+  tmpVal = (unsigned int)duty_perc;
   pos = POS_VAL_DATA04;
-  _strData4[pos] = (char)((tmpVal/1000)%10+'0');
-  pos++;
   _strData4[pos] = (char)((tmpVal/100)%10+'0');
   pos++;
   _strData4[pos] = (char)((tmpVal/10)%10+'0');
-  tmpVal = (duty_perc - tmpVal) * 10.0;
+  pos++;
+  _strData4[pos] = (char)(tmpVal%10+'0');
+  tmpVal = (duty_perc - tmpVal) * 10.0f;
   pos++;
   pos++;
   _strData4[pos] = (char)((tmpVal)%10+'0');
