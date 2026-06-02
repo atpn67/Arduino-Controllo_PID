@@ -16,7 +16,7 @@ protected:
 
 public:
     CMyLCD16x2();
-    virtual ~CMyLCD16x2 () {};
+    virtual ~CMyLCD16x2 ();
 
     /**
      * initilize LCD display and clear it

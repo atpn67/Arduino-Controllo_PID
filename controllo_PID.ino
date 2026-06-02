@@ -7,6 +7,9 @@
 #include "CShowData2Lcd.h"
 #include "AppCommon.h"
 
+// CONDITIONAL COMPILING
+#define EN_PIDCTRL 1
+
 // CONSTANTS:
 #define FSM_MAX_STEPS   4
 
@@ -122,7 +125,7 @@ void task_100ms()
   Input = Encoder_GetRpm();
   oPID.Compute();
 
-#if 0
+#if EN_PIDCTRL
   //OutputFF = (int)Output;
   OutputFF = (int)(Output + (FF * Setpoint));
   if ( OutputFF > 255 ) {
