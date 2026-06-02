@@ -17,44 +17,23 @@ CMyLCD16x2::CMyLCD16x2() : LiquidCrystal(PIN_LCD_RS, PIN_LCD_ENAB, PIN_LCD_D4, P
   _initDone = false;
 }
 
-CMyLCD16x2::~CMyLCD16x2 ()
-{
-  if ( _lcdBuf != nullptr ) {
-    delete _lcdBuf;
-  }
-  if ( _shadowBuf != nullptr ) {
-    delete _shadowBuf;
-  }
-}
-
 bool CMyLCD16x2::setup()
 {
   if ( !_initDone ) {
+    _initDone = true;
 
+    // set up the LCD's number of columns and rows:
+    LiquidCrystal::begin(LCD_NUM_COLS, LCD_NUM_ROWS);
     _cols = LCD_NUM_COLS;
     _rows = LCD_NUM_ROWS;
 
-    // fake do
-    do {
-      int bufSize = _cols * _rows;
+    int bufSize = _cols * _rows;
+    _lcdBuf = new char[bufSize];
+    _shadowBuf = new char[bufSize];
 
-      _lcdBuf = new char[bufSize];
-      _shadowBuf = new char[bufSize];
-
-      if ((_lcdBuf == nullptr) || (_shadowBuf == nullptr)) {
-        // memory allocation failure
-        break;
-      }
-      // fill memory buffers
-      memset(_lcdBuf, ' ', bufSize);
-      memset(_shadowBuf, 0xFF, bufSize);
-
-      // set up the LCD's number of columns and rows:
-      LiquidCrystal::begin(LCD_NUM_COLS, LCD_NUM_ROWS);
-      _initDone = true;
-    } while (false);
+    memset(_lcdBuf, ' ', bufSize);
+    memset(_shadowBuf, 0xFF, bufSize); // forza refresh completo
   }
-  return _initDone;
 }
 
 void CMyLCD16x2::clear ()

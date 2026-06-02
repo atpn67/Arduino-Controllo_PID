@@ -62,7 +62,7 @@ bool RdInputs_Update ( void )
   return true;
 }
 
-uint32_t RdInputs_SetPoint ( void )
+uint32_t RdInputs_pwmSetPoint ( void )
 {
   return pwmSetPoint;
 }

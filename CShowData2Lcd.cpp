@@ -8,9 +8,6 @@
 // CONSTANTS:
 #define LCD_DLY_US    50    // the value of delay time
 
-//#define STRBUF_SIZE   (CMyLCD16x2::LCD_NUM_COLS+1)
-//#define STRBUF_MAXLEN (CMyLCD16x2::LCD_NUM_COLS)
-
 // template of LCD display output
 //                     0123456789012345
 #define STR_DATA01    "Rpm setPt:  0000"
@@ -18,14 +15,10 @@
 #define STR_DATA03    "Rpm curS:   00.0"
 #define STR_DATA04    "Duty cur%: 000.0"
 
-#define POS_VALSTR    10
-//#define POS_VAL_DATA01  12
-//#define POS_VAL_DATA02  10
-//#define POS_VAL_DATA03  12
-//#define POS_VAL_DATA04  11
-
-// value used by _copy2StrData() in case of errors
-#define STR_VALDEF    "#.#"
+#define POS_VAL_DATA01  12
+#define POS_VAL_DATA02  10
+#define POS_VAL_DATA03  12
+#define POS_VAL_DATA04  11
 
 // GLOBAL API:
 
@@ -34,13 +27,14 @@ CShowData2Lcd::CShowData2Lcd() : CMyLCD16x2()
 {
   int val = ' ';
   memset( _strData1, val, LCD_NUM_COLS );
-  _strData1[STRBUF_MAXLEN] = '\0';
+  _strData1[CMyLCD16x2::LCD_NUM_COLS] = '\0';
   memset( _strData2, val, LCD_NUM_COLS );
-  _strData2[STRBUF_MAXLEN] = '\0';
+  _strData2[CMyLCD16x2::LCD_NUM_COLS] = '\0';
   memset( _strData3, val, LCD_NUM_COLS );
-  _strData3[STRBUF_MAXLEN] = '\0';
+  _strData3[CMyLCD16x2::LCD_NUM_COLS] = '\0';
   memset( _strData4, val, LCD_NUM_COLS );
-  _strData3[STRBUF_MAXLEN] = '\0';
+  _strData3[CMyLCD16x2::LCD_NUM_COLS] = '\0';
+  //this->begin(LCD_NUM_ROWS, LCD_NUM_COLS);
 }
 
 void CShowData2Lcd::setup()
@@ -82,11 +76,6 @@ bool CShowData2Lcd::selectData ( unsigned int data )
 
 bool CShowData2Lcd::refresh ( bool refreshAll )
 {
-  // counter of calls of this method
-  static unsigned int callCount = 0;
-  // local flag
-  bool fRefrAll = refreshAll;
-
   switch ( _selData ) {
 
     case SELDATA_SETP_RPMSCURR:
@@ -110,25 +99,11 @@ bool CShowData2Lcd::refresh ( bool refreshAll )
       CMyLCD16x2::printAt(1, 0, _strData2);
       break;
   }
-
-  // every 10 calls force a complete refresh
-  callCount++;
-  if ( (callCount % 10) == 0 ) {
-    fRefrAll = true;
-  }
-  return CMyLCD16x2::refresh( fRefrAll );
+  return CMyLCD16x2::refresh( refreshAll );
 }
 
 void CShowData2Lcd::setRpmSetpoint ( uint32_t setp_rpm )
 {
-  int numdig = 4;  // number of digits for this parameter
-
-#if 1
-  //_copy2StrData( setp_rpm, _strData1, POS_VAL_DATA01, numdig );
-  _copy2StrData( setp_rpm );
-  strncpy( &(_strData1[POS_VALSTR]), _strValue, (STRBUF_MAXLEN - POS_VALSTR) );
-#else
-  // TODO: delete this code?
   unsigned int pos;
   uint8_t digit;
 
@@ -144,21 +119,11 @@ void CShowData2Lcd::setRpmSetpoint ( uint32_t setp_rpm )
   pos++;
   _strData1[pos] = (char)((setp_rpm/10)%10+'0');
   pos++;
-  pos++;
   _strData1[pos] = (char)((setp_rpm%10)+'0');
-#endif
 }
 
 void CShowData2Lcd::setCurrSpeedFast( float speed_rpm )
 {
-  int numdig = 5;  // number of digits for this parameter
-
-#if 1
-  //_copy2StrData( speed_rpm, _strData2, POS_VAL_DATA02, numdig );
-  _copy2StrData( speed_rpm );
-  strncpy( &(_strData2[POS_VALSTR]), _strValue, (STRBUF_MAXLEN - POS_VALSTR) );
-#else
-  // TODO: delete this code?
   unsigned int pos;
   unsigned int tmpVal = speed_rpm;
   uint8_t digit;
@@ -180,19 +145,10 @@ void CShowData2Lcd::setCurrSpeedFast( float speed_rpm )
   pos++;
   pos++;
   _strData2[pos] = (char)(tmpVal%10+'0');
-#endif
 }
 
 void CShowData2Lcd::setCurrSpeedSlow( float speed_rpm )
 {
-  int numdig = 3;  // number of digits for this parameter
-
-#if 1
-  //_copy2StrData( speed_rpm, _strData3, POS_VAL_DATA03, numdig );
-  _copy2StrData( speed_rpm );
-  strncpy( &(_strData3[POS_VALSTR]), _strValue, (STRBUF_MAXLEN - POS_VALSTR) );
-#else
-  // TODO: delete this code?
   int pos;
   unsigned int tmpVal = (unsigned int)speed_rpm;
 
@@ -202,13 +158,14 @@ void CShowData2Lcd::setCurrSpeedSlow( float speed_rpm )
   _strData3[pos] = (char)(tmpVal%10+'0');
   tmpVal = (speed_rpm - tmpVal) * 10.0f;
   pos++;
+  pos++;
   _strData3[pos] = (char)(tmpVal%10+'0');
-#endif
 }
 
 void CShowData2Lcd::setCurrPwmDuty ( float duty_perc )
 {
-  int numdig = 4;  // number of digits for this parameter
+  int pos;
+  unsigned int tmpVal;
 
   // check input value must be 0 .. 100
   if ( duty_perc > 100 ) {
@@ -217,15 +174,6 @@ void CShowData2Lcd::setCurrPwmDuty ( float duty_perc )
   if ( duty_perc < 0 ) {
     duty_perc = 0;
   }
-
-#if 1
-  //_copy2StrData( duty_perc, _strData4, POS_VAL_DATA04, numdig );
-  _copy2StrData( duty_perc );
-  strncpy( &(_strData4[POS_VALSTR]), _strValue, (STRBUF_MAXLEN - POS_VALSTR) );
-#else
-  // TODO: delete this code?
-  int pos;
-  unsigned int tmpVal;
 
   tmpVal = (unsigned int)duty_perc;
   pos = POS_VAL_DATA04;
@@ -238,80 +186,15 @@ void CShowData2Lcd::setCurrPwmDuty ( float duty_perc )
   pos++;
   pos++;
   _strData4[pos] = (char)((tmpVal)%10+'0');
-#endif
-}
-
-/**
- * convert given integer value to numeric characters and copy them into a string buffer
- * starting from given position 'pos' and considering 'num' digits
- * @param value [in] value to convert in numeric characters 
- * @param _strValue [out] output buffer for value converted to a string
- * @return true on succes;
-*/
-bool CShowData2Lcd::_copy2StrData( uint32_t value )
-{
-  int pos;
-
-  pos = 0;
-  if ( value > 1000 ) {
-    _strValue[pos] = (uint8_t)((value/1000)%10 + '0');
-  } else {
-    _strValue[pos] = ' ';
-  }
-  pos++;
-  if ( value > 100 ) {
-    _strValue[pos] = (uint8_t)((value/100)%10 + '0');
-  } else {
-    _strValue[pos] = ' ';
-  }
-  pos++;
-  if ( value > 10 ) {
-    _strValue[pos] = (uint8_t)((value/10)%10 + '0');
-  } else {
-    _strValue[pos] = ' ';
-  }
-  pos++;
-  _strValue[pos] = (char)((value%10)+'0');
-  pos++;
-  _strValue[pos] = '\0';
-
-  return true;
-}
-
-/**
- * convert given float value to numeric characters with one decimal digit and copy them 
- * into a string buffer starting from given position 'pos' and considering 'num' digits
- * @param value [in] value to convert in numeric characters 
- * @param _strValue [out] output buffer for value converted to a string
- * @return true on succes;
-*/
-bool CShowData2Lcd::_copy2StrData( float value )
-{
-  int pos;
-  uint32_t tmpVal = (uint32_t)value;
-
-  if ( _copy2StrData( tmpVal ) ) {
-    // add decimal point and decimal digit
-    tmpVal = (value - tmpVal) * 10.0f;
-    pos = (STRVAL_SIZE-3);
-    _strValue[pos] = '.';
-    pos++;
-    _strValue[pos] = (char)((tmpVal)%10+'0');
-    pos++;
-    _strValue[pos] = '\0';
-
-  } else {
-    return false;
-  }
-  return true;
 }
 
 // TODO: delete this?
-#if 0
+/*
 void CShowData2Lcd::printCentered(const char* text) {
     int len = strlen(text);
     int pos = (LCD_NUM_COLS - len) / 2;
     setCursor(pos, 0);
     print(text);
 }
-#endif
+*/
+

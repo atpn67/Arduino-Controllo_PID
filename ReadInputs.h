@@ -18,10 +18,10 @@ bool RdInputs_Init ( uint32_t initVal );
 bool RdInputs_Update ();
 
 /**
- * get actual requested setpoint
- * @return: actual setpoint in range 0..255
+ * get actual requested PWM setpoint
+ * @return: actual PWM setpoint in range 0..255
 */
-uint32_t RdInputs_SetPoint ();
+uint32_t RdInputs_pwmSetPoint ();
 
 /**
  * get actual requested setpoint

@@ -17,11 +17,6 @@ enum {
 
 class CShowData2Lcd : public CMyLCD16x2
 {
-private:
-    static const int STRBUF_MAXLEN = (CMyLCD16x2::LCD_NUM_COLS);
-    static const int STRBUF_SIZE = (CMyLCD16x2::LCD_NUM_COLS+1);
-    static const int STRVAL_SIZE = 7;
-
 public:
     CShowData2Lcd();
     virtual ~CShowData2Lcd() {};
@@ -74,19 +69,13 @@ public:
     void setCurrPwmDuty ( float duty_perc );
 
 private:
-    bool _copy2StrData( uint32_t value );
-    bool _copy2StrData( float value );
-
-private:
 	// true when setup has been done
     bool _initDone;
     // string buffers for data to show
-    char _strData1[STRBUF_SIZE];
-    char _strData2[STRBUF_SIZE];
-    char _strData3[STRBUF_SIZE];
-    char _strData4[STRBUF_SIZE];
-    // buffer used by _copy2StrData()
-    char _strValue[STRVAL_SIZE];
+    char _strData1[CMyLCD16x2::LCD_NUM_COLS+1];
+    char _strData2[CMyLCD16x2::LCD_NUM_COLS+1];
+    char _strData3[CMyLCD16x2::LCD_NUM_COLS+1];
+    char _strData4[CMyLCD16x2::LCD_NUM_COLS+1];
     // store selection of data to show
     unsigned int _selData;
 };

@@ -1,6 +1,7 @@
 // Author: G.Topan
 // Note:
 
+#include <PID_v1_bc.h>
 #include "Encoder.h"
 #include "ReadInputs.h"
 #include "CShowData2Lcd.h"
@@ -13,7 +14,22 @@
 uint32_t tNext_ms = 0;
 uint32_t tCurr_ms = 0;
 
+// PID parameters
+double Kp = 0.25f;  // 0.25
+double Ki = 0.2f;   // 0.1 o 0.2
+double Kd = 0.0f;
+double FF = 0.18f;
+//double FF = 0.08f;
+//double FF = 0.0f;
+
+// PID variables
+double Setpoint;
+double Input;
+double Output;
+int OutputFF;
+
 CShowData2Lcd oLcdShow;
+PID oPID(&Input, &Output, &Setpoint, Kp, Ki, Kd, DIRECT);
 
 void setup()
 {
@@ -30,12 +46,18 @@ void setup()
   // init onboard LED output
   pinMode(LED_BUILTIN, OUTPUT);
 
+  //set PID controller
+  oPID.SetOutputLimits(-25, 255);
+  oPID.SetSampleTime(CYCLE_TIME_MS);
+  //oPID.SetTunings(Kp, Ki, Kd);
+  oPID.SetMode(AUTOMATIC);
+
   // init cycle time variables
   tCurr_ms = millis();
   tNext_ms = tCurr_ms + CYCLE_TIME_MS;
 
-  // start PWM output
-  analogWrite(PIN_PWM_OUT, RdInputs_SetPoint());
+  // start PWM output off
+  analogWrite(PIN_PWM_OUT, 0);
   Serial.println("PWM Motor control started.");
 }
 
@@ -55,12 +77,15 @@ void loop()
     // refresh LCD content
     if (loopCount % NUM_LOOP_LCD == 0)
     {
+      float pwmDuty = (float)(OutputFF * 100.0 / 255);
+
       oLcdShow.setRpmSetpoint( RdInputs_SpeedSetPoint() );
+      oLcdShow.setCurrPwmDuty( pwmDuty );
       oLcdShow.setCurrSpeedFast( Encoder_GetRpm() );
       oLcdShow.setCurrSpeedSlow( Encoder_GetRpmSlow() );
-      oLcdShow.setCurrPwmDuty( RdInputs_GetDuty() );
 
       oLcdShow.refresh(true);
+      //oLcdShow.refresh();
     }
 
     if (loopCount % NUM_LOOP_1S == 0)
@@ -86,13 +111,35 @@ void loop()
 void task_100ms()
 {
   uint32_t rpmVal;
-
-  // command motor speed
-  analogWrite(PIN_PWM_OUT, RdInputs_SetPoint());
+  int pwmOut;
 
   // update encoder counter
   Encoder_GetCount();
   rpmVal = Encoder_GetRpm();
+
+  // TODO: add PID control
+  Setpoint = RdInputs_SpeedSetPoint();
+  Input = Encoder_GetRpm();
+  oPID.Compute();
+
+#if 0
+  //OutputFF = (int)Output;
+  OutputFF = (int)(Output + (FF * Setpoint));
+  if ( OutputFF > 255 ) {
+    OutputFF = 255;
+  }
+  if ( OutputFF < 0 ) {
+    OutputFF = 0;
+  }
+  pwmOut = OutputFF;
+#else
+  //OutputFF = RdInputs_pwmSetPoint();
+  OutputFF = (int)(FF * RdInputs_SpeedSetPoint());
+#endif
+  pwmOut = OutputFF;
+
+  // command motor speed
+  analogWrite(PIN_PWM_OUT, pwmOut);
 
   // get new setpoint value and push button status
   RdInputs_Update();
@@ -104,25 +151,22 @@ void task_1000ms()
   int stepNum;
   stepNum = LCDUpdateSelData();
 
-  // TODO: completare
 #if 0
-  uint32_t tmpVal = RdInputs_SetPoint();
-  float dutyVal = RdInputs_GetDuty();
-  float rpmSpeed = Encoder_GetRpm();
-
-  Serial.print("setpoint: ");
-  Serial.print(tmpVal, DEC);
-  Serial.print("  Set Duty: ");
-  Serial.print(dutyVal, 1);
-  Serial.print("  velocità: ");
-  Serial.println(rpmSpeed, 1);
-#endif
-
   stepNum++;
   Serial.print("FSM step ");
   Serial.print(RdInputs_GetBtnStatus(), DEC);
   Serial.print("  ");
   Serial.println(stepNum, DEC);
+#endif
+
+#if 1
+  Serial.print("PID param ");
+  Serial.print(Setpoint, 2);
+  Serial.print("  ");
+  Serial.print(Input, 2);
+  Serial.print("  ");
+  Serial.println(Output, 2);
+#endif
 }
 
 /* update LCD selected data
