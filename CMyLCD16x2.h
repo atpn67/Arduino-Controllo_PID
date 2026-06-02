@@ -18,25 +18,29 @@ public:
     CMyLCD16x2();
     virtual ~CMyLCD16x2 () {};
 
-    /* initilize LCD display and clear it
-     * return none
+    /**
+     * initilize LCD display and clear it
+     * @return none
     */
     bool setup ();
 
-    /* print starting from given cursor position
-     *  row [in]
-     *  col [in]
-     *  text [in]
-     *  return none
+    /**
+     * print starting from given cursor position
+     *  @param row [in]
+     *  @param col [in]
+     *  @param text [in]
+     *  @return none
     */
     bool printAt ( uint8_t row, uint8_t col, const char* text );
 
     void clear ();
 
-    /* update display output only of updated characters
-     * return none
+    /**
+     * update display output only of updated characters
+     * @param refreshAll [in]
+     * @return none
     */
-    bool refresh ();
+    bool refresh ( bool refreshAll );
 
 private:
     bool _initDone;

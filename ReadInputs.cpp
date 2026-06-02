@@ -47,6 +47,7 @@ bool RdInputs_Update ( void )
   // read Trimmer A/D imput
   trimmerADValue = analogRead(PIN_TRIMMER);
   pwmSetPoint = trimmerADValue/ADC_TO_PWMSET;
+  //pwmSetPoint = map( trimmerADValue, 0, MAX_ADC_VALUE, 10, MAX_PWMSET );
   // convert to a proportionale value
   rpmSetPoint = map( trimmerADValue, 0, MAX_ADC_VALUE, MOTOR_RPM_FAST_MIN, MOTOR_RPM_FAST_MAX );
 

@@ -6,21 +6,19 @@
 #include "CShowData2Lcd.h"
 
 // CONSTANTS:
-//#define LCD_NUM_ROWS  16
-//#define LCD_NUM_COLS  2
-#define   LCD_DLY_US    50    // the value of delay time
+#define LCD_DLY_US    50    // the value of delay time
 
 // template of LCD display output
-//                       0123456789012345
-#define   STR_DATA01    "Rpm setPt:  0000"
-#define   STR_DATA02    "Rpm curF: 0000.0"
-#define   STR_DATA03    "Rpm curS:   00.0"
-#define   STR_DATA04    "Duty cur%: 000.0"
+//                     0123456789012345
+#define STR_DATA01    "Rpm setPt:  0000"
+#define STR_DATA02    "Rpm curF: 0000.0"
+#define STR_DATA03    "Rpm curS:   00.0"
+#define STR_DATA04    "Duty cur%: 000.0"
 
-#define   POS_VAL_DATA01  12
-#define   POS_VAL_DATA02  10
-#define   POS_VAL_DATA03  12
-#define   POS_VAL_DATA04  11
+#define POS_VAL_DATA01  12
+#define POS_VAL_DATA02  10
+#define POS_VAL_DATA03  12
+#define POS_VAL_DATA04  11
 
 // GLOBAL API:
 
@@ -76,7 +74,7 @@ bool CShowData2Lcd::selectData ( unsigned int data )
   return true;
 }
 
-bool CShowData2Lcd::refresh ( void )
+bool CShowData2Lcd::refresh ( bool refreshAll )
 {
   switch ( _selData ) {
 
@@ -101,7 +99,7 @@ bool CShowData2Lcd::refresh ( void )
       CMyLCD16x2::printAt(1, 0, _strData2);
       break;
   }
-  return CMyLCD16x2::refresh();
+  return CMyLCD16x2::refresh( refreshAll );
 }
 
 void CShowData2Lcd::setRpmSetpoint ( uint32_t setp_rpm )

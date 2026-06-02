@@ -29,47 +29,47 @@ void setup()
 
   // init onboard LED output
   pinMode(LED_BUILTIN, OUTPUT);
+
   // init cycle time variables
   tCurr_ms = millis();
   tNext_ms = tCurr_ms + CYCLE_TIME_MS;
 
   // start PWM output
   analogWrite(PIN_PWM_OUT, RdInputs_SetPoint());
-  Serial.println("PWM Motor started.");
+  Serial.println("PWM Motor control started.");
 }
 
 void loop()
 {
-  static uint32_t loop_count = 0;
+  static uint32_t loopCount = 0;
 
   tCurr_ms= millis();
 
   if (tCurr_ms >= tNext_ms)
   {
     // cycle @ CYCLE_TIME_MS
-    loop_count++;
+    loopCount++;
 
     task_100ms();
 
     // refresh LCD content
-    if (loop_count % NUM_LOOP_LCD == 0)
+    if (loopCount % NUM_LOOP_LCD == 0)
     {
       oLcdShow.setRpmSetpoint( RdInputs_SpeedSetPoint() );
       oLcdShow.setCurrSpeedFast( Encoder_GetRpm() );
       oLcdShow.setCurrSpeedSlow( Encoder_GetRpmSlow() );
       oLcdShow.setCurrPwmDuty( RdInputs_GetDuty() );
 
-      oLcdShow.refresh();
+      oLcdShow.refresh(true);
     }
 
-    if (loop_count % NUM_LOOP_1S == 0)
+    if (loopCount % NUM_LOOP_1S == 0)
     {
-      // cycle @ 1000 ms
       task_1000ms();
     }
 
     // do LED blinking
-    if (loop_count % NUM_LOOP_LED == 0)
+    if (loopCount % NUM_LOOP_LED == 0)
     {
       doLedBlink();
     }
@@ -82,7 +82,7 @@ void loop()
   }
 }
 
-// commento
+// task @ 100 ms
 void task_100ms()
 {
   uint32_t rpmVal;
@@ -98,7 +98,7 @@ void task_100ms()
   RdInputs_Update();
 }
 
-// commento
+// task @ 1000 ms
 void task_1000ms()
 {
   int stepNum;

@@ -45,7 +45,7 @@ void CMyLCD16x2::clear ()
 
   int bufSize = _cols * _rows;
   memset(_lcdBuf, ' ', bufSize);
-  refresh();
+  refresh(true);
 }
 
 bool CMyLCD16x2::printAt(uint8_t row, uint8_t col, const char* text)
@@ -66,7 +66,7 @@ bool CMyLCD16x2::printAt(uint8_t row, uint8_t col, const char* text)
   return true;
 }
 
-bool CMyLCD16x2::refresh ( void )
+bool CMyLCD16x2::refresh ( bool refreshAll )
 {
   if ( !_initDone ) {
     // setup() not yet called
@@ -76,7 +76,7 @@ bool CMyLCD16x2::refresh ( void )
     int size = _cols * _rows;
 
     for (int i = 0; i < size; i++) {
-        if (_lcdBuf[i] != _shadowBuf[i]) {
+        if ( refreshAll || (_lcdBuf[i] != _shadowBuf[i])) {
             uint8_t row = i / _cols;
             uint8_t col = i % _cols;
 

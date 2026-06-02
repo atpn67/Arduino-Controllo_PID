@@ -24,40 +24,47 @@ public:
     // initilize LCD display and clear it
     void setup();
 
-    /* select data to show on display
-     * data [in] see enum ???
-     * return true on success
+    /**
+     * select data to show on display
+     * @param data [in] see enum ???
+     * @return true on success
      *        false on errors
     */
     bool selectData ( unsigned int data );
 
-    /* update display output with selected data
+    /**
+     * update display output with selected data
      * use selectData() to select data to show
-     * return none
+     * @param refreshAll [in]
+     * @return none
     */
-    bool refresh();
+    bool refresh ( bool refreshAll = false );
 
-    /* set current rpm Set Point to show on display
-     * setp_rpm [in]
-     * return none
+    /**
+     * set current rpm Set Point to show on display
+     * @param setp_rpm [in]
+     * @return none
     */
     void setRpmSetpoint ( uint32_t setp_rpm );
 
-    /* set current motor spped on fast shaft to show on display
-     * speed_rpm [in]
-     * return none
+    /**
+     * set current motor spped on fast shaft to show on display
+     * @param speed_rpm [in]
+     * @return none
     */
     void setCurrSpeedFast( float speed_rpm );
 
-    /* set current motor spped on slow shaft to show on display
-     * speed_rpm [in]
-     * return none
+    /**
+     * set current motor spped on slow shaft to show on display
+     * @param speed_rpm [in]
+     * @return none
     */
     void setCurrSpeedSlow( float speed_rpm );
 
-    /* set current PWM duty cylce to show on display
-     * duty_perc [in]
-     * return none
+    /**
+     * set current PWM duty cylce to show on display
+     * @param duty_perc [in]
+     * @return none
     */
     void setCurrPwmDuty ( float duty_perc );
 
