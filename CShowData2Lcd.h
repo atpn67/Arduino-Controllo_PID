@@ -82,7 +82,6 @@ private:
     char _strData4[CMyLCD16x2::LCD_NUM_COLS+1];
     // store selection of data to show
     unsigned int _selData;
-
 };
 
 #endif // CSHOWDATA2LCD_H
