@@ -2,8 +2,9 @@
 // Note:
 
 #include "Arduino.h"
-#include "Encoder.h"
+#include "MathUtils.h"
 #include "AppCommon.h"
+#include "Encoder.h"
 
 // CONSTANTS:
 // PWM motor constants
@@ -13,11 +14,16 @@
 #define DEBOUNCE_TIME_US    500     // software debouncing min time, 500 µs debounce
 #define FREQ_MS_TO_RPM      60000   // converts [1/milliseconds] = Hz*1000 to rpm
 
+#define SPEED_MAVG_SAMPLE   15
+
 // LOCAL VARS:
 static bool initDone = false;        // make Encoder_init only one time
 static uint32_t timeLast_ms = 0;      // time of last Encoder_GetCount() call
 static float speed_rpm = 0;           // [rpm] last computed speed
 static volatile uint32_t pulse_count = 0;   // shared puls counter
+
+// mooving average filter
+static SFilter30Float sSpeedFilt;
 
 // LOCAL FUNC:
 void isr_pulse_count ();
@@ -32,6 +38,9 @@ void Encoder_Init ( void )
     // save actual time
     timeLast_ms = millis();
     attachInterrupt(digitalPinToInterrupt(PIN_ENCODER), isr_pulse_count, FALLING);
+
+    // init mooving avg filter
+    Filter30Float_init( &sSpeedFilt );
   }
 }
 
@@ -59,12 +68,18 @@ uint32_t Encoder_GetCount ( void )
   // more accurate speed value, take in accout true time window
   speed_rpm = ((num_pulse * FREQ_MS_TO_RPM)/(MOTOR_ENC_PPR*timeWindow_ms));
 
+  Filter30Float_update( speed_rpm, &sSpeedFilt, SPEED_MAVG_SAMPLE );
   return num_pulse;
 }
 
 float Encoder_GetRpm ( void )
 {
   return speed_rpm;
+}
+
+float Encoder_GetRpmFilt ( void )
+{
+  return sSpeedFilt.neamValue;
 }
 
 float Encoder_GetRpmSlow ( void )

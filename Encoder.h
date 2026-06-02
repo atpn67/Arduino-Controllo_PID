@@ -28,6 +28,12 @@ uint32_t Encoder_GetCount ();
 float Encoder_GetRpm ();
 
 /**
+ * get actual rpm speed on fast shaft filtered
+ * @return: actual fast shaft speed in rpm
+*/
+float Encoder_GetRpmFilt ();
+
+/**
  * get actual rpm speed on slow shaft
  * @return: actual slow shaft speed in rpm
 */

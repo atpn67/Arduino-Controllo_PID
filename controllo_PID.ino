@@ -7,23 +7,25 @@
 #include "CShowData2Lcd.h"
 #include "AppCommon.h"
 
-// CONDITIONAL COMPILING
+// CONDITIONAL COMPILING:
 #define EN_PIDCTRL 1
 
 // CONSTANTS:
 #define FSM_MAX_STEPS   4
+#define PID_MAX_PWMVAL  255
+#define PID_MIN_PWMVAL  -50
 
 // GLOBAL VARS:
 uint32_t tNext_ms = 0;
 uint32_t tCurr_ms = 0;
 
 // PID parameters
-double Kp = 0.25f;  // 0.25
-double Ki = 0.2f;   // 0.1 o 0.2
+double Kp = 0.10f;      // 0.25
+double Ki = 0.15f;      //0.2f;   // 0.1 o 0.2
 double Kd = 0.0f;
-double FF = 0.18f;
+//double FF = 0.18f;    // OK WHEN pid is disabled
 //double FF = 0.08f;
-//double FF = 0.0f;
+double FF = 0.08f;
 
 // PID variables
 double Setpoint;
@@ -50,7 +52,7 @@ void setup()
   pinMode(LED_BUILTIN, OUTPUT);
 
   //set PID controller
-  oPID.SetOutputLimits(-25, 255);
+  oPID.SetOutputLimits(PID_MIN_PWMVAL, PID_MAX_PWMVAL);
   oPID.SetSampleTime(CYCLE_TIME_MS);
   //oPID.SetTunings(Kp, Ki, Kd);
   oPID.SetMode(AUTOMATIC);
@@ -84,7 +86,7 @@ void loop()
 
       oLcdShow.setRpmSetpoint( RdInputs_SpeedSetPoint() );
       oLcdShow.setCurrPwmDuty( pwmDuty );
-      oLcdShow.setCurrSpeedFast( Encoder_GetRpm() );
+      oLcdShow.setCurrSpeedFast( Encoder_GetRpmFilt() );
       oLcdShow.setCurrSpeedSlow( Encoder_GetRpmSlow() );
 
       oLcdShow.refresh(true);
@@ -122,7 +124,8 @@ void task_100ms()
 
   // TODO: add PID control
   Setpoint = RdInputs_SpeedSetPoint();
-  Input = Encoder_GetRpm();
+  //Input = Encoder_GetRpm();
+  Input = Encoder_GetRpmFilt();
   oPID.Compute();
 
 #if EN_PIDCTRL
@@ -168,7 +171,7 @@ void task_1000ms()
   Serial.print("  ");
   Serial.print(Input, 2);
   Serial.print("  ");
-  Serial.println(Output, 2);
+  Serial.println((int)Output, DEC);
 #endif
 }
 
