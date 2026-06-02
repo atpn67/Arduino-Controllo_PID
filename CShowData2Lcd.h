@@ -69,6 +69,10 @@ public:
     void setCurrPwmDuty ( float duty_perc );
 
 private:
+    bool _copy2StrData( uint32_t value, char * pStrData, int pos, int num );
+    bool _copy2StrData( float value, char * pStrData, int pos, int num  );
+
+private:
 	// true when setup has been done
     bool _initDone;
     // string buffers for data to show
@@ -78,6 +82,7 @@ private:
     char _strData4[CMyLCD16x2::LCD_NUM_COLS+1];
     // store selection of data to show
     unsigned int _selData;
+
 };
 
 #endif // CSHOWDATA2LCD_H

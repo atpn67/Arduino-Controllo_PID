@@ -8,6 +8,9 @@
 // CONSTANTS:
 #define LCD_DLY_US    50    // the value of delay time
 
+#define STRBUF_SIZE   (CMyLCD16x2::LCD_NUM_COLS+1)
+#define STRBUF_MAXLEN (CMyLCD16x2::LCD_NUM_COLS)
+
 // template of LCD display output
 //                     0123456789012345
 #define STR_DATA01    "Rpm setPt:  0000"
@@ -27,14 +30,13 @@ CShowData2Lcd::CShowData2Lcd() : CMyLCD16x2()
 {
   int val = ' ';
   memset( _strData1, val, LCD_NUM_COLS );
-  _strData1[CMyLCD16x2::LCD_NUM_COLS] = '\0';
+  _strData1[STRBUF_MAXLEN] = '\0';
   memset( _strData2, val, LCD_NUM_COLS );
-  _strData2[CMyLCD16x2::LCD_NUM_COLS] = '\0';
+  _strData2[STRBUF_MAXLEN] = '\0';
   memset( _strData3, val, LCD_NUM_COLS );
-  _strData3[CMyLCD16x2::LCD_NUM_COLS] = '\0';
+  _strData3[STRBUF_MAXLEN] = '\0';
   memset( _strData4, val, LCD_NUM_COLS );
-  _strData3[CMyLCD16x2::LCD_NUM_COLS] = '\0';
-  //this->begin(LCD_NUM_ROWS, LCD_NUM_COLS);
+  _strData3[STRBUF_MAXLEN] = '\0';
 }
 
 void CShowData2Lcd::setup()
@@ -76,6 +78,11 @@ bool CShowData2Lcd::selectData ( unsigned int data )
 
 bool CShowData2Lcd::refresh ( bool refreshAll )
 {
+  // counter of calls of this method
+  static unsigned int callCount = 0;
+  // local flag
+  bool fRefrAll = refreshAll;
+
   switch ( _selData ) {
 
     case SELDATA_SETP_RPMSCURR:
@@ -99,11 +106,21 @@ bool CShowData2Lcd::refresh ( bool refreshAll )
       CMyLCD16x2::printAt(1, 0, _strData2);
       break;
   }
-  return CMyLCD16x2::refresh( refreshAll );
+
+  // every 10 calls force a complete refresh
+  callCount++;
+  if ( (callCount % 10) == 0 ) {
+    fRefrAll = true;
+  }
+  return CMyLCD16x2::refresh( fRefrAll );
 }
 
 void CShowData2Lcd::setRpmSetpoint ( uint32_t setp_rpm )
 {
+#if 1
+  _copy2StrData( setp_rpm, _strData1, POS_VAL_DATA01, 4 );
+#else
+  // TODO: delete this code?
   unsigned int pos;
   uint8_t digit;
 
@@ -121,10 +138,15 @@ void CShowData2Lcd::setRpmSetpoint ( uint32_t setp_rpm )
   pos++;
   pos++;
   _strData1[pos] = (char)((setp_rpm%10)+'0');
+#endif
 }
 
 void CShowData2Lcd::setCurrSpeedFast( float speed_rpm )
 {
+#if 1
+  _copy2StrData( speed_rpm, _strData2, POS_VAL_DATA02, 5 );
+#else
+  // TODO: delete this code?
   unsigned int pos;
   unsigned int tmpVal = speed_rpm;
   uint8_t digit;
@@ -146,10 +168,15 @@ void CShowData2Lcd::setCurrSpeedFast( float speed_rpm )
   pos++;
   pos++;
   _strData2[pos] = (char)(tmpVal%10+'0');
+#endif
 }
 
 void CShowData2Lcd::setCurrSpeedSlow( float speed_rpm )
 {
+#if 1
+  _copy2StrData( speed_rpm, _strData3, POS_VAL_DATA03, 3 );
+#else
+  // TODO: delete this code?
   int pos;
   unsigned int tmpVal = (unsigned int)speed_rpm;
 
@@ -159,15 +186,12 @@ void CShowData2Lcd::setCurrSpeedSlow( float speed_rpm )
   _strData3[pos] = (char)(tmpVal%10+'0');
   tmpVal = (speed_rpm - tmpVal) * 10.0f;
   pos++;
-  pos++;
   _strData3[pos] = (char)(tmpVal%10+'0');
+#endif
 }
 
 void CShowData2Lcd::setCurrPwmDuty ( float duty_perc )
 {
-  int pos;
-  unsigned int tmpVal;
-
   // check input value must be 0 .. 100
   if ( duty_perc > 100 ) {
     duty_perc = 100;
@@ -175,6 +199,13 @@ void CShowData2Lcd::setCurrPwmDuty ( float duty_perc )
   if ( duty_perc < 0 ) {
     duty_perc = 0;
   }
+
+#if 1
+  _copy2StrData( duty_perc, _strData4, POS_VAL_DATA04, 4 );
+#else
+  // TODO: delete this code?
+  int pos;
+  unsigned int tmpVal;
 
   tmpVal = (unsigned int)duty_perc;
   pos = POS_VAL_DATA04;
@@ -187,6 +218,88 @@ void CShowData2Lcd::setCurrPwmDuty ( float duty_perc )
   pos++;
   pos++;
   _strData4[pos] = (char)((tmpVal)%10+'0');
+#endif
+}
+
+/**
+ * convert given integer value to numeric characters and copy them into a string buffer
+ * starting from given position 'pos' and considering 'num' digits
+ * @param value [in] value to convert in numeric characters 
+ * @param pStrData [out] output buffer
+ * @param pos [in] buffer start position (0 based)
+ * @param num [in] number of digits to convert
+ * @return true on succes;
+*/
+bool CShowData2Lcd::_copy2StrData( uint32_t value, char * pStrData, int pos, int num )
+{
+  uint8_t digit;
+  bool fcontinue = true;
+
+  if ( (pos + num) > STRBUF_SIZE ) {
+    // buffer overbund
+    return false;
+  }
+
+  if ( num >= 4 ) {
+    digit = (uint8_t)((value/1000)%10);
+    if ( fcontinue && (digit == 0) ) {
+      pStrData[pos] = ' ';
+      fcontinue = true;
+    } else {
+      pStrData[pos] = digit + '0';
+      fcontinue = false;
+    }
+    pos++;
+  }
+  if ( num >= 3 ) {
+    digit = (uint8_t)((value/100)%10);
+    if ( fcontinue && (digit == 0) ) {
+      pStrData[pos] = ' ';
+      fcontinue = true;
+    } else {
+      pStrData[pos] = digit + '0';
+      fcontinue = false;
+    }
+    pos++;
+  }
+  if ( num >= 2 ) {
+    digit = (uint8_t)((value/10)%10);
+    if ( fcontinue && (digit == 0) ) {
+      pStrData[pos] = ' ';
+      fcontinue = true;
+    } else {
+      pStrData[pos] = digit + '0';
+      fcontinue = false;
+    }
+    pos++;
+    pStrData[pos] = (char)((value%10)+'0');
+  }
+  return true;
+}
+
+/**
+ * convert given float value to numeric characters with one decimal digit and copy them 
+ * into a string buffer starting from given position 'pos' and considering 'num' digits
+ * @param value [in] value to convert in numeric characters 
+ * @param pStrData [out] output buffer
+ * @param pos [in] buffer start position (0 based)
+ * @param num [in] number of digits to convert
+ * @return true on succes;
+*/
+bool CShowData2Lcd::_copy2StrData( float value, char * pStrData, int pos, int num )
+{
+  uint32_t tmpVal = (uint32_t)value;
+
+  if ( (pos + num + 1) > STRBUF_SIZE ) {
+    // buffer overbund
+    return false;
+  }
+
+  _copy2StrData( tmpVal, pStrData, pos, num-1 );
+  // note: consider also decimal point
+  pos += num;
+  pStrData[pos] = (char)(tmpVal%10+'0');
+  return true;
 }
 
 // TODO: delete this?
