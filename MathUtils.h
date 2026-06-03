@@ -3,7 +3,7 @@
 
 #include "stdint.h"
 
-// used by Filter30() API
+// used by Filter30() APIs
 #define FILTER30_SIZE   30
 typedef struct _type_mavg_int {
     int cnt;                // current buffer index
@@ -16,7 +16,7 @@ typedef struct _type_mavg_float {
     int cnt;                // current buffer index
     int nelem;              // number of elements stored
     float buf[FILTER30_SIZE];   // buffer to store elements
-    float neamValue;            // computed mean value
+    float neamValue;        // computed mean value
 } SFilter30Float;
 
 /**
@@ -81,32 +81,34 @@ int Filter30Float_update ( float value, SFilter30Float* b, int nFil );
 /**
  * Setup the filter with @p C as constant for calculations and @p startValue as
  * first output value.
- * @param filt          filter struct pointer
- * @param fConst        filtering constant
- * @param startValue    first filter output
+ * @param filt   [in] filter struct pointer
+ * @param fConst [in] filtering constant
+ * @param startValue [in] first filter output
+ * @return none
  */
  void iirFilt_setup(iirFilt_t* filt, unsigned int fConst, int startValue);
 
 /**
  * Start filter output to a new value. To be used when starting to filter
  * from a specific value.
- * @param f             filter struct pointer
- * @param startValue    filter output
+ * @param filt  [in] filter struct pointer
+ * @param startValue [in] filter output
+ * @return none
  */
- void iirFilt_start(iirFilt_t* f, int startValue);
+ void iirFilt_start(iirFilt_t* filt, int startValue);
 
 /**
  * Calculates the new filtered value based on new input value
- * @param f             filter struct pointer
- * @param newVal        input value to be filtered
- * @return              the filtered value
+ * @param filt [in] filter struct pointer
+ * @param newVal [in] input value to be filtered
+ * @return the filtered value
  */
-int iirFilt_filt(iirFilt_t* f, int newVal);
+int iirFilt_filt(iirFilt_t* filt, int newVal);
 
 /**
  * Get the (last) output of the filter.
- * @param f             filter struct pointer
- * @return              output of the filter
+ * @param filt [in] filter struct pointer
+ * @return output of the filter
  */
-int iirFilt_get(iirFilt_t* f);
+int iirFilt_get(iirFilt_t* filt);
 

@@ -21,11 +21,13 @@ uint32_t tCurr_ms = 0;
 
 // PID parameters
 double Kp = 0.10f;      // 0.25
-double Ki = 0.15f;      //0.2f;   // 0.1 o 0.2
+double Ki = 0.15f;      // 0.2f
 double Kd = 0.0f;
-//double FF = 0.18f;    // OK WHEN pid is disabled
-//double FF = 0.08f;
-double FF = 0.08f;
+#if EN_PIDCTRL
+double FF = 0.08f;      // 0.08f
+#else
+double FF = 0.18f;      // OK WHEN pid is disabled
+#endif
 
 // PID variables
 double Setpoint;
@@ -89,8 +91,8 @@ void loop()
       oLcdShow.setCurrSpeedFast( Encoder_GetRpmFilt() );
       oLcdShow.setCurrSpeedSlow( Encoder_GetRpmSlow() );
 
-      oLcdShow.refresh(true);
-      //oLcdShow.refresh();
+      //oLcdShow.refresh(true);
+      oLcdShow.refresh();
     }
 
     if (loopCount % NUM_LOOP_1S == 0)
@@ -122,14 +124,13 @@ void task_100ms()
   Encoder_GetCount();
   rpmVal = Encoder_GetRpm();
 
-  // TODO: add PID control
+  // PID control
   Setpoint = RdInputs_SpeedSetPoint();
-  //Input = Encoder_GetRpm();
   Input = Encoder_GetRpmFilt();
   oPID.Compute();
 
 #if EN_PIDCTRL
-  //OutputFF = (int)Output;
+  // output PID with feed-forward
   OutputFF = (int)(Output + (FF * Setpoint));
   if ( OutputFF > 255 ) {
     OutputFF = 255;
@@ -139,7 +140,6 @@ void task_100ms()
   }
   pwmOut = OutputFF;
 #else
-  //OutputFF = RdInputs_pwmSetPoint();
   OutputFF = (int)(FF * RdInputs_SpeedSetPoint());
 #endif
   pwmOut = OutputFF;
@@ -157,6 +157,7 @@ void task_1000ms()
   int stepNum;
   stepNum = LCDUpdateSelData();
 
+// debug messages
 #if 0
   stepNum++;
   Serial.print("FSM step ");
@@ -165,7 +166,8 @@ void task_1000ms()
   Serial.println(stepNum, DEC);
 #endif
 
-#if 1
+// debug messages
+#if 0
   Serial.print("PID param ");
   Serial.print(Setpoint, 2);
   Serial.print("  ");
@@ -175,8 +177,9 @@ void task_1000ms()
 #endif
 }
 
-/* update LCD selected data
- * return: current step 0 .. 4
+/**
+ * update LCD selected data
+ * @return: current step 0 .. 4
 */ 
 int LCDUpdateSelData()
 {

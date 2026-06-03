@@ -60,10 +60,7 @@ uint32_t Encoder_GetCount ( void )
   timeWindow_ms = (timeNow_ms - timeLast_ms);
   timeLast_ms = timeNow_ms;
 
-  // convert counter to rpm speed if called @ 1Hz
-  // speed_rpm = ((num_pulse * 60 * 1000)/(1000*12));
   // convert counter to rpm speed if called @ 10Hz = 100ms
-  //speed_rpm = ((num_pulse * 60000)/1200);
   //speed_rpm = ((num_pulse * FREQ_MS_TO_RPM)/(MOTOR_ENC_PPR*100));
   // more accurate speed value, take in accout true time window
   speed_rpm = ((num_pulse * FREQ_MS_TO_RPM)/(MOTOR_ENC_PPR*timeWindow_ms));

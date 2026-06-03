@@ -7,8 +7,6 @@
 #define PIN_ENCODER   2
 
 #define PIN_BUTTON01  3 
-//#define PIN_BUTTON02  3  
-//#define PIN_BUTTON03  4   
 
 #define PIN_PWM_OUT   9
 #define PIN_TRIMMER   0

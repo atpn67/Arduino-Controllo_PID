@@ -37,7 +37,7 @@ public:
 
     /**
      * update display output only of updated characters
-     * @param refreshAll [in]
+     * @param refreshAll [in] force a full refresh
      * @return none
     */
     bool refresh ( bool refreshAll );

@@ -31,7 +31,7 @@ public:
 
     /**
      * select data to show on display
-     * @param data [in] see enum ???
+     * @param data [in] see enum ESelData
      * @return true on success
      *        false on errors
     */
@@ -40,35 +40,35 @@ public:
     /**
      * update display output with selected data
      * use selectData() to select data to show
-     * @param refreshAll [in]
+     * @param refreshAll [in] force a full refresh
      * @return none
     */
     bool refresh ( bool refreshAll = false );
 
     /**
      * set current rpm Set Point to show on display
-     * @param setp_rpm [in]
+     * @param setp_rpm [in] value to show
      * @return none
     */
     void setRpmSetpoint ( uint32_t setp_rpm );
 
     /**
-     * set current motor spped on fast shaft to show on display
-     * @param speed_rpm [in]
+     * set current motor speed on fast shaft to show on display
+     * @param speed_rpm [in] value to show
      * @return none
     */
     void setCurrSpeedFast( float speed_rpm );
 
     /**
-     * set current motor spped on slow shaft to show on display
-     * @param speed_rpm [in]
+     * set current motor speed on slow shaft to show on display
+     * @param speed_rpm [in] value to show
      * @return none
     */
     void setCurrSpeedSlow( float speed_rpm );
 
     /**
      * set current PWM duty cylce to show on display
-     * @param duty_perc [in]
+     * @param duty_perc [in] value to show
      * @return none
     */
     void setCurrPwmDuty ( float duty_perc );

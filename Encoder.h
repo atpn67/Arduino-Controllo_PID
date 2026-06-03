@@ -3,7 +3,7 @@
 
 #include  "stdint.h"
 
-// CONSTANTS
+// CONSTANTS:
 
 // PWM motor limits
 #define MOTOR_RPM_FAST_MAX  1300

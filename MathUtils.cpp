@@ -100,4 +100,3 @@ int iirFilt_get ( iirFilt_t* f )
 {
     return f->_lastOut;
 }
-
